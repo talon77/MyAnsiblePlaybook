@@ -15,7 +15,7 @@
           - "445:445"
         volumes:
           - "/etc/samba/smb.conf:/etc/samba/smb.conf:ro"
-          - "/srv/samba:/share:rw"
+          - "/Podman/samba:/share:rw"
         environment:
           TZ: "{{ timezone }}"
         restart_policy: always
@@ -25,7 +25,7 @@
           - "3000:3000"
           - "10022:22"
         volumes:
-          - "/srv/gogs:/data:rw"
+          - "/Podman/gogs:/data:rw"
         environment:
           TZ: "{{ timezone }}"
         restart_policy: always
@@ -35,7 +35,7 @@
           - "80:80"
           - "443:443"
         volumes:
-          - "/srv/heimdall:/config:rw"
+          - "/Podman/heimdall:/config:rw"
         environment:
           PUID: "1000"
           PGID: "1000"
@@ -48,8 +48,8 @@
           - "6881:6881"
           - "6881:6881/udp"
         volumes:
-          - "/srv/qbittorrent/config:/config:rw"
-          - "/srv/qbittorrent/downloads:/downloads:rw"
+          - "/Podman/qbittorrent/config:/config:rw"
+          - "/Podman/qbittorrent/downloads:/downloads:rw"
         environment:
           PUID: "1000"
           PGID: "1000"
@@ -110,8 +110,11 @@
         state: directory
         mode: '0755'
       loop:
-        - /srv/qbittorrent/config
-        - /srv/qbittorrent/downloads
+        - /Podman/samba
+        - /Podman/gogs
+        - /Podman/heimdall
+        - /Podman/qbittorrent/config
+        - /Podman/qbittorrent/downloads
 
     - name: Run podman containers
       containers.podman.podman_container:
