@@ -1,0 +1,126 @@
+---
+- name: Configure Debian server with tools and containers
+  hosts: all
+#  become: yes
+  vars:
+    timezone: "America/Vancouver"
+    samba_conf_path: "./smb.conf"  # Update with actual path to your smb.conf
+    podman_containers:
+      - name: samba
+        image: docker.io/dperson/samba:latest
+        ports:
+          - "137:137/udp"
+          - "138:138/udp"
+          - "139:139"
+          - "445:445"
+        volumes:
+          - "/etc/samba/smb.conf:/etc/samba/smb.conf:ro"
+          - "/srv/samba:/share:rw"
+        environment:
+          TZ: "{{ timezone }}"
+        restart_policy: always
+      - name: gogs
+        image: docker.io/gogs/gogs:latest
+        ports:
+          - "3000:3000"
+          - "10022:22"
+        volumes:
+          - "/srv/gogs:/data:rw"
+        environment:
+          TZ: "{{ timezone }}"
+        restart_policy: always
+      - name: heimdall
+        image: docker.io/linuxserver/heimdall:latest
+        ports:
+          - "80:80"
+          - "443:443"
+        volumes:
+          - "/srv/heimdall:/config:rw"
+        environment:
+          PUID: "1000"
+          PGID: "1000"
+          TZ: "{{ timezone }}"
+        restart_policy: always
+      - name: qbittorrent
+        image: docker.io/linuxserver/qbittorrent:latest
+        ports:
+          - "8080:8080"
+          - "6881:6881"
+          - "6881:6881/udp"
+        volumes:
+          - "/srv/qbittorrent/config:/config:rw"
+          - "/srv/qbittorrent/downloads:/downloads:rw"
+        environment:
+          PUID: "1000"
+          PGID: "1000"
+          TZ: "{{ timezone }}"
+          #Check logs after it spins up. There will be a username of admin and a random generated passwrod. Go in and whitelist IP range so as not to require credentials to login
+        restart_policy: always
+
+  tasks:
+    - name: Set timezone to Vancouver
+      timezone:
+        name: "{{ timezone }}"
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+      ignore_errors: yes
+
+    - name: Install base packages
+      apt:
+        name:
+          - htop
+          - tree
+          - rsync
+          - tmux
+          - iftop
+          - atop
+          - ncdu
+          - vim
+          - rclone
+          - golang
+          - podman
+          - podman-compose
+        state: present
+
+    - name: Ensure samba directory exists
+      file:
+        path: /etc/samba
+        state: directory
+        mode: '0755'
+
+    - name: Copy smb.conf
+      copy:
+        src: "{{ samba_conf_path }}"
+        dest: /etc/samba/smb.conf
+        mode: '0644'
+      #ignore_errors: yes
+
+    - name: Ensure podman service is enabled
+      systemd:
+        name: podman
+        enabled: yes
+        state: started
+
+    - name: Ensure directories for qbittorrent exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /srv/qbittorrent/config
+        - /srv/qbittorrent/downloads
+
+    - name: Run podman containers
+      containers.podman.podman_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        state: started
+        ports: "{{ item.ports | default(omit) }}"
+        volumes: "{{ item.volumes | default(omit) }}"
+        env: "{{ item.environment | default(omit) }}"
+        restart_policy: "{{ item.restart_policy }}"
+      loop: "{{ podman_containers }}"
+      ignore_errors: yes
