@@ -77,13 +77,22 @@
           - tmux
           - iftop
           - atop
-          - ncdu
+          - ncdu #Package for monitoring drive usage
+          - openssl
+          - cockpit #Great little package to monitor the whole server via a browser
+          - sudo
           - vim
-          - rclone
+          - rclone #Package for mounting cloud storage locally
           - golang
-          - podman
+          - podman #Docker alternative
           - podman-compose
         state: present
+
+    - name: Add user to sudo group
+      ansible.builtin.user:
+        name: cmahler #--------CHANGE TO WHATEVER USERNAME NEEDS SUDO ACCESS--------
+        groups: sudo
+        append: yes
 
     - name: Ensure samba directory exists
       file:
