@@ -1,7 +1,7 @@
 ---
 - name: Configure Debian server with tools and containers
   hosts: all
-#  become: yes
+#  become: yes # <----This is needed if your not using root to ssh into your server
   vars:
     timezone: "America/Vancouver"
     samba_conf_path: "./smb.conf"  # Update with actual path to your smb.conf
@@ -90,7 +90,7 @@
 
     - name: Add user to sudo group
       ansible.builtin.user:
-        name: cmahler #--------CHANGE TO WHATEVER USERNAME NEEDS SUDO ACCESS--------
+        name: cmahler # <--------CHANGE TO WHATEVER USERNAME NEEDS SUDO ACCESS--------
         groups: sudo
         append: yes
 
