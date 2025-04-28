@@ -12,7 +12,8 @@ Noteworthy Packages:
 Podman containers that will be installed:
 
 + QBittorrent ---- Torrent server
-+ Heimdall    ---- A local web page containg links to services that I'm running
++ Heimdall    ---- A local web page containg links to services that I'm running (Being replaced by Dashy)
++ Dashy       ---- This is replacing Heimdall because a config file can be used to auto load links where Heimdall can't do this
 + Gogs        ---- My own local GIT repo server
 + Samba       ---- Samba share to allow me to share content that is downloaded via QBittorrent
 
