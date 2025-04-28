@@ -56,6 +56,13 @@
           TZ: "{{ timezone }}"
           #Check logs after it spins up. There will be a username of admin and a random generated passwrod. Go in and whitelist IP range so as not to require credentials to login
         restart_policy: always
+      - name: dashy
+        image: docker.io/lissy93/dashy:latest
+        ports:
+          - "8181:8080"
+        volumes:
+          - "/Podman/dashy/config.yml:/app/user-data/conf.yml"
+        restart_policy: always
 
   tasks:
     - name: Set timezone to Vancouver
@@ -81,6 +88,8 @@
           - openssl
           - cockpit #Great little package to monitor the whole server via a browser
           - sudo
+          - tealdeer #Example based man pages
+          - sshfs #Mount remote directories locally
           - vim
           - rclone #Package for mounting cloud storage locally
           - golang
@@ -124,6 +133,15 @@
         - /Podman/heimdall
         - /Podman/qbittorrent/config
         - /Podman/qbittorrent/downloads
+        - /Podman/dashy
+
+    - name: Deploy Dashy Configuration
+      template:
+        src: config.yml.j2
+        dest: /Podman/dashy/config.yml
+        owner: root
+        group: root
+        mode: '0644'
 
     - name: Run podman containers
       containers.podman.podman_container:

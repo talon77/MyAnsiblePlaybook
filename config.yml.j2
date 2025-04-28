@@ -1,0 +1,36 @@
+---
+pageInfo:
+  title: Home Lab
+sections:
+  - name: Example Section
+    icon: far fa-rocket
+    items:
+      - title: GitHub
+        description: Dashy source code and docs
+        icon: fab fa-github
+        url: https://github.com/Lissy93/dashy
+        id: 0_1473_github
+      - title: Issues
+        description: View open issues, or raise a new one
+        icon: fas fa-bug
+        url: https://github.com/Lissy93/dashy/issues
+        id: 1_1473_issues
+  - name: Local Services
+    items:
+      - title: Firewall
+        icon: >-
+          https://192.168.2.2/ui/themes/opnsense/build/images/default-logo.svg?v=2117c4340e293eca
+        url: http://192.168.2.2
+        id: 0_1359_firewall
+      - title: Bittorrent
+        icon: https://i.ibb.co/710B3Yc/space-invader-x256.png
+        url: http://{{ ansible_facts.default_ipv4.address }}:8080
+        id: 1_1359_bittorrent
+      - title: Cockpit
+        url: https://{{ ansible_facts.default_ipv4.address }}:9090
+        target: newtab
+        id: 2_1359_cockpit
+appConfig:
+  layout: horizontal
+  iconSize: large
+  theme: callisto
