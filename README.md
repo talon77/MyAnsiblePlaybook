@@ -16,6 +16,7 @@ Podman containers that will be installed:
 + Dashy       ---- This is replacing Heimdall because a config file can be used to auto load links where Heimdall can't do this
 + Gogs        ---- My own local GIT repo server
 + Samba       ---- Samba share to allow me to share content that is downloaded via QBittorrent
++ PiHole      ---- DNS filtering to block spam and other bad sites
 
 Ensure on your local machine you have the ansible package installed. Download both files into the same directory as the smb.conf will be copied from there to your server.
 
