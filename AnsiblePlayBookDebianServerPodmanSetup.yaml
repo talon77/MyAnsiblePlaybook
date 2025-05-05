@@ -32,7 +32,7 @@
       - name: heimdall
         image: docker.io/linuxserver/heimdall:latest
         ports:
-          - "80:80"
+          - "88:80"
           - "443:443"
         volumes:
           - "/Podman/heimdall:/config:rw"
@@ -63,6 +63,21 @@
         volumes:
           - "/Podman/dashy/config.yml:/app/user-data/conf.yml"
         restart_policy: always
+      - name: pihole
+        image: docker.io/pihole/pihole:latest
+        ports:
+          - "53:53/tcp"
+          - "53:53/udp"
+          - "8888:80"
+        environment:
+          TZ: "{{ timezone }}"
+          FTLCONF_webserver_api_password: "pass"
+        cap_add:
+          - NET_ADMIN
+        network: host
+        volumes:
+          - "/Podman/pihole:/etc/pihole"
+        restart_policy: always
 
   tasks:
     - name: Set timezone to Vancouver
@@ -88,7 +103,7 @@
           - openssl
           - cockpit #Great little package to monitor the whole server via a browser
           - sudo
-          - tealdeer #Example based man pages
+          - tealdeer #Example based man pages - Too use "tldr --update; tldr --list; tldr tar"
           - sshfs #Mount remote directories locally
           - vim
           - rclone #Package for mounting cloud storage locally
@@ -134,6 +149,7 @@
         - /Podman/qbittorrent/config
         - /Podman/qbittorrent/downloads
         - /Podman/dashy
+        - /Podman/pihole
 
     - name: Deploy Dashy Configuration
       template:
@@ -151,6 +167,8 @@
         ports: "{{ item.ports | default(omit) }}"
         volumes: "{{ item.volumes | default(omit) }}"
         env: "{{ item.environment | default(omit) }}"
+        cap_add: "{{ item.cap_add | default(omit) }}"
+        network: "{{ item.network | default(omit) }}"
         restart_policy: "{{ item.restart_policy }}"
       loop: "{{ podman_containers }}"
       ignore_errors: yes
