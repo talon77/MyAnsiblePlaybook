@@ -2,6 +2,8 @@
 - name: Configure Debian server with tools and containers
   hosts: all
 #  become: yes # <----This is needed if your not using root to ssh into your server
+  vars_files:
+    - ./secrets.yml
   vars:
     timezone: "America/Vancouver"
     samba_conf_path: "./smb.conf"  # Update with actual path to your smb.conf
@@ -78,6 +80,19 @@
         volumes:
           - "/Podman/pihole:/etc/pihole"
         restart_policy: always
+      - name: tailscale
+        image: docker.io/tailscale/tailscale:latest
+        environment:
+          TS_AUTHKEY: "{{ TS_KEY }}"
+          TS_EXTRA_ARGS: "--advertise-exit-node"
+        cap_add:
+          - NET_ADMIN
+          - NET_RAW
+        volumes:
+          - "/Podman/tailscale:/dev/net/tun"
+          - "/var/lib:/var/lib"
+        network: host
+        restart_policy: always
 
   tasks:
     - name: Set timezone to Vancouver
@@ -150,6 +165,7 @@
         - /Podman/qbittorrent/downloads
         - /Podman/dashy
         - /Podman/pihole
+        - /Podman/tailscale
 
     - name: Deploy Dashy Configuration
       template:
