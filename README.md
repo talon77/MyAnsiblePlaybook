@@ -17,6 +17,7 @@ Podman containers that will be installed:
 + Gogs        ---- My own local GIT repo server
 + Samba       ---- Samba share to allow me to share content that is downloaded via QBittorrent
 + PiHole      ---- DNS filtering to block spam and other bad sites
++ TailScale   ---- VPN Mesh Network
 
 Ensure on your local machine you have the ansible package installed. Download both files into the same directory as the smb.conf will be copied from there to your server.
 
@@ -26,6 +27,11 @@ _Example usage when running_:
 ```
 ansible-playbook AnsiblePlayBookDebianServerPodmanSetup.yaml -i "192.168.3.17," -u root --ask-pass
 ```
+```
+ansible-playbook AnsiblePlayBookDebianServerPodmanSetup.yaml -i "192.168.3.17," -u root --ask-pass --ask-vault-pass
+```
+Added a "secrets.yml" ansible-vault to contain the TailScale key "TS_KEY" that the playbook uses when setting up the containers
+
 Another example to pull a youtube video down
 ```
 podman run --pull always -i --rm -v "$(pwd)":/data w33ble/youtube-dl youtube-dl -f 'bestvideo[ext=mp4][height<=480]+bestaudio[ext=m4a]/best[ext=mp4][height<=480]' -o "%(title)s.mp4" https://www.youtube.com/watch?v=xxxx
